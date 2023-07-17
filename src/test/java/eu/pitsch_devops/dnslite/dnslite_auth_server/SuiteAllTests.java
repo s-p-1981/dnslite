@@ -5,7 +5,7 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({ 
-	DNSMessageTest.class 
+	DNSQuestionBuilderTest.class 
 })
 
 public class SuiteAllTests {
