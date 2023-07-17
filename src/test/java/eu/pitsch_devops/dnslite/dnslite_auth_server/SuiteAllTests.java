@@ -4,8 +4,9 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 @Suite
-@SelectClasses({ 
-	DNSQuestionBuilderTest.class 
+@SelectClasses({
+	SelfContainedTests.class,
+	DNSQuestionBuilderTest.class
 })
 
 public class SuiteAllTests {
