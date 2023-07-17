@@ -8,6 +8,7 @@ abstract public class DNSMessage {
 
 	// constants to set one-bit flags or to set flag, invert then and to unset flag
 	// in 3rd byte
+	/*
 	static final byte QR_FLAG = (byte)0b1000_0000; // casting necessary for ints > 127. bits preserved
 	static final byte AA_FLAG= (byte)0b0000_0100;
 	static final byte TC_FLAG= (byte)0b0000_0010;
@@ -18,6 +19,26 @@ abstract public class DNSMessage {
 	static final byte Z_FLAG = (byte)0b0100_0000;
 	static final byte AD_FLAG = (byte)0b0010_0000;
 	static final byte CD_FLAG = (byte)0b0001_0000;
+*/
+	enum Flag {
+		QR((byte)0b1000_0000, (byte)2),
+		AA((byte)0b0000_0100, (byte)2),
+		TC((byte)0b0000_0010, (byte)2),
+		RD((byte)0b0000_0001, (byte)2),
+		RA((byte)0b1000_0000, (byte)3),
+		Z((byte)0b0100_0000, (byte)3),
+		AD((byte)0b0010_0000, (byte)3),
+		CD((byte)0b0001_0000, (byte)3);
+
+		final byte bit;
+		final byte bytePos;
+
+		Flag(byte setBit, byte bytePos) {
+			this.bit = setBit;
+			this.bytePos = bytePos;
+		}
+
+	}
 
 	// bits in 3rd byte that are not part of the opcode. use with & to unset OPCODE bits and leave others unchanged
 	static final byte OPCODE_MASK = (byte)0b1000_0111;
