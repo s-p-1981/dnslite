@@ -8,33 +8,35 @@ public class DNSQuestion extends DNSMessage {
 
 
 	// first 12 bytes - Header
-	byte[] fixedSizeHeader;
 	byte[] varLengthSections;
 
 
 	private DNSQuestion() {
-
 	}
 
 	public static class DNSQuestionBuilder {
 
-		DNSQuestion question;
+		private DNSQuestion question;
 
 		public DNSQuestionBuilder() {
 			question = new DNSQuestion();
 			question.fixedSizeHeader = new byte[12];
 			// set Opcode field
-			question.fixedSizeHeader[0] = (byte)((question.fixedSizeHeader[0] & OPCODE_MASK) | OPCODE_QUERY_BITS);
-			// set QR field  - must be set for question
-			setFlagQR(true);
-			// set RD flag default
-			setFlagRD(false);
-			// set CD flag default
-			setFlagCD(false);
+			setOPCodetoQuery();
+			// QR flag always false for questions
+			setFlagQR();
+			// unset other flags as default option.
+			// superfluous, should already be in unset state when fixedSizeHeader is initialized
+			unsetFlagRD();
+			unsetFlagCD();
 		}
 
 		public DNSQuestion build() {
 			return question;
+		}
+
+		public void setOPCodetoQuery() {
+			question.fixedSizeHeader[0] = (byte)((question.fixedSizeHeader[0] & OPCode.OPCODE_MASK) | OPCode.QUERY.bits);
 		}
 
 		public DNSQuestionBuilder setFieldTransactionID(int txid) {
@@ -49,57 +51,45 @@ public class DNSQuestion extends DNSMessage {
 			return this;
 		}
 
-		// private  - always set for questions, unset for answers
-		private DNSQuestionBuilder setFlagQR(boolean value) {
-			if(value) question.fixedSizeHeader[Flag.QR.bytePos] |= Flag.QR.bit;
-			else question.fixedSizeHeader[Flag.QR.bytePos] &= ~Flag.QR.bit;
+
+		private void setFlag(Flag flag, boolean value) {
+			// TODO: move computation into Flag enum, and just use it here?
+			if(value) question.fixedSizeHeader[flag.bytePos] |=flag.bit;
+			else question.fixedSizeHeader[flag.bytePos] &= ~flag.bit;
+		}
+
+		// private  - always set for questions, always unset for answers
+		private DNSQuestionBuilder setFlagQR() {
+			setFlag(Flag.QR, true);
 			return this;
 		}
 
-		// public - client must be able to choose
-		public DNSQuestionBuilder setFlagRD(boolean value) {
-			if(value) question.fixedSizeHeader[Flag.RD.bytePos] |= Flag.RD.bit;
-			else question.fixedSizeHeader[Flag.RD.bytePos] &= ~Flag.RD.bit;
+		private DNSQuestionBuilder unsetFlagQR() {
+			setFlag(Flag.QR, false);
 			return this;
 		}
 
-		// public - client must be able to choose
-		public DNSQuestionBuilder setFlagCD(boolean value) {
-			if(value) question.fixedSizeHeader[Flag.CD.bytePos] |= Flag.CD.bit;
-			else question.fixedSizeHeader[Flag.CD.bytePos] &= ~Flag.CD.bit;
+		// public - client must be able to choose these flags
+		public DNSQuestionBuilder setFlagRD() {
+			setFlag(Flag.RD, true);
 			return this;
 		}
 
+		public DNSQuestionBuilder unsetFlagRD() {
+			setFlag(Flag.RD, false);
+			return this;
+		}
 
-	}
+		public DNSQuestionBuilder setFlagCD() {
+			setFlag(Flag.CD, true);
+			return this;
+		}
 
-	public int getFieldTransactionID() {
-		return (fixedSizeHeader[0] << 8) + Byte.toUnsignedInt(fixedSizeHeader[1]);
-	}
+		public DNSQuestionBuilder unsetFlagCD() {
+			setFlag(Flag.CD, false);
+			return this;
+		}
 
-	public boolean getFlag(Flag flag) {
-		return (fixedSizeHeader[flag.bytePos] & flag.bit) == flag.bit;
-	}
+	} // End of DNSQuestionBuilder
 
-	public boolean getFlagQR() {
-		return getFlag(Flag.QR);
-	}
-
-	public boolean getFlagRD() {
-		return getFlag(Flag.RD);
-	}
-
-	public boolean getFlagCD() {
-		return getFlag(Flag.CD);
-	}
-
-	@Override
-	public String toString() {
-		String formatString = ""
-				+ "DNSQuestion\n"
-				+ "Flags: (QR    OPC   AA    TC    RD    RA    Z     AD    DC   )\n"
-				+ "(       %1$b %2$d %3$b %4$b %5$b %6$b %7$b %8$b %9$b ";
-		return String.format(formatString, true, true, true, true, false, false, false, true, true);
-	}
-
-}
+} // End of DNSQuestion
