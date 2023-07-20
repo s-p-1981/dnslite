@@ -1,6 +1,13 @@
 package eu.pitsch_devops.dnslite.dnslite_auth_server;
 
-abstract public class DNSMessage {
+
+/*
+ * abstract, but will contain most of the actual Code, since DNSMessages, whether Question or Answers
+ * or quite similar in their overall structure, and share many aspects
+ *
+ * Subclasses mainly exist to differentiate between Question and Answer in client code
+ */
+abstract class DNSMessage {
 
 	/* static fields */
 	// constants for bitwise operations
@@ -24,7 +31,6 @@ abstract public class DNSMessage {
 			this.bit = setBit;
 			this.bytePos = bytePos;
 		}
-
 	}
 
 	enum OPCode {
@@ -44,31 +50,72 @@ abstract public class DNSMessage {
 		OPCode(byte bits) {
 			this.bits = bits;
 		}
+
+		static byte apply(OPCode code, byte inByte) {
+			return (byte)((inByte & OPCode.OPCODE_MASK) | OPCode.QUERY.bits);
+		}
+
 	}
 
 	enum RCode {
-		// TODO: Implement
+		NOERR((byte)0b0000_0000),
+		FORMERR((byte) 0b0000_0001),
+		SERVFAIL((byte) 0b0000_0010),
+		NXDOMAIN((byte) 0b0000_0011),
+		NOTIMP((byte) 0b0000_0100),
+		REFUSED((byte)0b0000_0101),
+		YXDOMAIN((byte)0b0000_0110),
+		YXRRSET((byte) 0b0000_0111),
+		NXRRSET((byte)0b0000_1000),
+		NOTAUTH((byte) 0b0000_1001),
+		NOTZONE((byte) 0b0000_1010);
+
+
+		// bits in 4th byte that are not part of the rcode. use with & to unset OPCODE bits and leave others unchanged
+		static final byte RCODE_MASK = (byte)0b1111_0000; // bits in 4th byte that are not part of the rcode
+		final byte bits;
+		RCode(byte bits) {
+			this.bits = bits;
+		}
 	}
 
+	static abstract class DNSMessageBuilder {
 
-	// bits in 3rd byte that are not part of the opcode. use with & to unset OPCODE bits and leave others unchanged
-	static final byte RCODE_MASK = (byte)0b1111_0000; // bits in 4th byte that are not part of the rcode
-	// constants to set RCODE. set with |, (after applying mask with &)
-	static final byte RCODE_NOERR_BITS = (byte)0b0000_0000;
-	static final byte RCODE_FORMERR_BITS = (byte)0b0000_0001;
-	static final byte RCODE_SERVFAIL_BITS = (byte)0b0000_0010;
-	static final byte RCODE_NXDOMAIN_BITS = (byte)0b0000_0011;
-	static final byte RCODE_NOTIMP_BITS = (byte)0b0000_0100;
-	static final byte RCODE_REFUSED_BITS = (byte)0b0000_0101;
-	static final byte RCODE_YXDOMAIN_BITS = (byte)0b0000_0110;
-	static final byte RCODE_YXRRSET_BITS = (byte)0b0000_0111;
-	static final byte RCODE_NXRRSET_BITS = (byte)0b0000_1000;
-	static final byte RCODE_NOTAUTH_BITS = (byte)0b0000_1001;
-	static final byte RCODE_NOTZONE_BITS = (byte)0b0000_1010;
+		byte[] builderBytes = new byte[512];
+		short realLength = 0;
 
+		void setFlag(Flag flag, boolean value) {
+			if(value) builderBytes[flag.bytePos] |=flag.bit;
+			else builderBytes[flag.bytePos] &= ~flag.bit;
+		}
+	}
 
 	/* fields */
-	byte[] fixedSizeHeader;
+	byte[] messageBytes;
+
+	/* to be called in Subtype-Builders only */
+	DNSMessage(byte[] messageBytes) {
+		this.messageBytes = messageBytes;
+	}
+
+	/* to be used with existing messageBytes (e.g., coming over network)
+	 *
+	 * no validation
+	 *
+	 * */
+	public static DNSMessage fromBytes(byte[] content) throws DNSParseException {
+		try {
+			if (DNSMessage.getFlag(Flag.QR, content)) {
+				return new DNSAnswer(content);
+			}
+			else {
+				return new DNSQuestion(content);
+			}
+		}
+		catch (Exception e) {
+			throw new DNSParseException(e);
+		}
+	}
 
 	/* methods */
 	@Override
@@ -81,11 +128,15 @@ abstract public class DNSMessage {
 	}
 
 	public int getFieldTransactionID() {
-		return (fixedSizeHeader[0] << 8) + Byte.toUnsignedInt(fixedSizeHeader[1]);
+		return (messageBytes[0] << 8) + Byte.toUnsignedInt(messageBytes[1]);
 	}
 
 	public boolean getFlag(Flag flag) {
-		return (fixedSizeHeader[flag.bytePos] & flag.bit) == flag.bit;
+		return getFlag(flag, messageBytes);
+	}
+
+	private static boolean getFlag(Flag flag, byte[] bytes) {
+		return (bytes[flag.bytePos] & flag.bit) == flag.bit;
 	}
 
 	public boolean getFlagQR() {
@@ -98,5 +149,9 @@ abstract public class DNSMessage {
 
 	public boolean getFlagCD() {
 		return getFlag(Flag.CD);
+	}
+
+	public int getLength() {
+		return this.messageBytes.length;
 	}
 }

@@ -6,6 +6,7 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @SelectClasses({
 	SelfContainedTests.class,
+	DNSMessageBytesTest.class,
 	DNSQuestionBuilderTest.class
 })
 

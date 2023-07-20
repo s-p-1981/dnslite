@@ -1,42 +1,41 @@
 package eu.pitsch_devops.dnslite.dnslite_auth_server;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class DNSQuestion extends DNSMessage {
 
 	static final Logger log = Logger.getLogger(DNSQuestion.class.getName());
 
-
-	// first 12 bytes - Header
-	byte[] varLengthSections;
-
-
-	private DNSQuestion() {
+	/* intent : (package) private constructors only, class should be immutable thus
+	 * effectively final
+	 */
+	DNSQuestion(byte[] messageBytes) {
+		super(messageBytes);
 	}
 
-	public static class DNSQuestionBuilder {
+	public static class DNSQuestionBuilder extends DNSMessage.DNSMessageBuilder {
 
-		private DNSQuestion question;
+//		private byte[] builderBytes = new byte[512];
+//		private short realLength = 0;
 
 		public DNSQuestionBuilder() {
-			question = new DNSQuestion();
-			question.fixedSizeHeader = new byte[12];
-			// set Opcode field
 			setOPCodetoQuery();
 			// QR flag always false for questions
-			setFlagQR();
+			unsetFlagQR();
 			// unset other flags as default option.
-			// superfluous, should already be in unset state when fixedSizeHeader is initialized
 			unsetFlagRD();
 			unsetFlagCD();
+			realLength = 12; // length of headers
 		}
 
 		public DNSQuestion build() {
-			return question;
+			return new DNSQuestion(Arrays.copyOf(builderBytes, realLength));
 		}
 
 		public void setOPCodetoQuery() {
-			question.fixedSizeHeader[0] = (byte)((question.fixedSizeHeader[0] & OPCode.OPCODE_MASK) | OPCode.QUERY.bits);
+//			builderBytes[0] = (byte)((builderBytes[0] & OPCode.OPCODE_MASK) | OPCode.QUERY.bits);
+			builderBytes[0] = OPCode.apply(OPCode.QUERY, builderBytes[0]);
 		}
 
 		public DNSQuestionBuilder setFieldTransactionID(int txid) {
@@ -46,30 +45,30 @@ public class DNSQuestion extends DNSMessage {
 			if (txid < MIN_UNSIZED_SHORT)
 				throw new IllegalArgumentException(
 					String.format("TransactionID too small: was {}: should be >= 0", txid));
-			question.fixedSizeHeader[0] = (byte)(txid >> 8);
-			question.fixedSizeHeader[1] = (byte)txid;
+			builderBytes[0] = (byte)(txid >> 8);
+			builderBytes[1] = (byte)txid;
 			return this;
 		}
 
-
-		private void setFlag(Flag flag, boolean value) {
-			// TODO: move computation into Flag enum, and just use it here?
-			if(value) question.fixedSizeHeader[flag.bytePos] |=flag.bit;
-			else question.fixedSizeHeader[flag.bytePos] &= ~flag.bit;
-		}
-
 		// private  - always set for questions, always unset for answers
-		private DNSQuestionBuilder setFlagQR() {
+		DNSQuestionBuilder setFlagQR() {
 			setFlag(Flag.QR, true);
 			return this;
 		}
 
-		private DNSQuestionBuilder unsetFlagQR() {
+		DNSQuestionBuilder unsetFlagQR() {
 			setFlag(Flag.QR, false);
 			return this;
 		}
 
-		// public - client must be able to choose these flags
+		/* setFlagRD
+		 *
+		 * Call this method to set the RD ("Recursion Desired") flag in the DNSQuestion to 1.
+		 *
+		 * This is meant to be set on a normal DNS client and should trigger a the DNS-Server with that capality (a resolver) to do the iterative
+		 * queries needed to fill your query.
+		 *
+		 */
 		public DNSQuestionBuilder setFlagRD() {
 			setFlag(Flag.RD, true);
 			return this;
@@ -80,6 +79,16 @@ public class DNSQuestion extends DNSMessage {
 			return this;
 		}
 
+		/* setFlagRD
+		 *
+		 * Call this method to set the CD ("Checking Disabled") flag in the DNSQuestion to 1.
+		 *
+		 * This is set by a resolver and must be echoed in the answer.
+		 * This is not meant to be set on a normal DNS client, but may be returned in the answer.
+		 *
+		 * It signifies DNSSEC was not used.
+		 *
+		 */
 		public DNSQuestionBuilder setFlagCD() {
 			setFlag(Flag.CD, true);
 			return this;

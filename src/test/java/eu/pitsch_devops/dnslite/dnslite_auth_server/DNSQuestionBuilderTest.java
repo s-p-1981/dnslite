@@ -66,16 +66,15 @@ class DNSQuestionBuilderTest {
 		assertTrue(resultingException.getMessage().contains("too big"));
 	}
 
-	@DisplayName("test QR field - always true in Question")
+	@DisplayName("test QR field - always false in Question")
 	@Test
-	void testFlagQRIsSet() {
+	void testFlagQRIsUnSet() {
 		DNSMessage question = new DNSQuestion.DNSQuestionBuilder()
 			.build();
-		assertTrue(question.getFlagQR());
+		assertFalse(question.getFlagQR());
 		// other flags also have expected values
 		assertFalse(question.getFlagRD());
 		assertFalse(question.getFlagCD());
-		log.info(question.toString());
 	}
 
 	@DisplayName("test RD field default - false")
@@ -94,7 +93,7 @@ class DNSQuestionBuilderTest {
 			.build();
 		assertFalse(question.getFlagRD());
 		// other flags have expected values
-		assertTrue(question.getFlagQR());
+		assertFalse(question.getFlagQR());
 		assertFalse(question.getFlagCD());
 	}
 
@@ -106,7 +105,7 @@ class DNSQuestionBuilderTest {
 			.build();
 		assertTrue(question.getFlagRD());
 		// other flags have expected values
-		assertTrue(question.getFlagQR());
+		assertFalse(question.getFlagQR());
 		assertFalse(question.getFlagCD());
 	}
 
@@ -126,7 +125,7 @@ class DNSQuestionBuilderTest {
 			.build();
 		assertFalse(question.getFlagCD());
 		// other flags have expected values
-		assertTrue(question.getFlagQR());
+		assertFalse(question.getFlagQR());
 		assertFalse(question.getFlagRD());
 	}
 
@@ -138,20 +137,10 @@ class DNSQuestionBuilderTest {
 			.build();
 		assertTrue(question.getFlagCD());
 		// other flags have expected values
-		assertTrue(question.getFlagQR());
+		assertFalse(question.getFlagQR());
 		assertFalse(question.getFlagRD());
 	}
 
 
 
 }
-
-
-
-
-
-
-
-
-
-
