@@ -1,4 +1,4 @@
-package eu.pitsch_devops.dnslite.dnslite_auth_server;
+package eu.ptsdvps.dnslite.protocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -8,6 +8,11 @@ import java.util.logging.Logger;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import eu.ptsdvps.dnslite.protocol.DNSAnswer;
+import eu.ptsdvps.dnslite.protocol.DNSMessage;
+import eu.ptsdvps.dnslite.protocol.DNSParseException;
+import eu.ptsdvps.dnslite.protocol.DNSQuestion;
 
 class DNSMessageBytesTest {
 

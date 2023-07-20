@@ -1,4 +1,4 @@
-package eu.pitsch_devops.dnslite.dnslite_auth_server;
+package eu.ptsdvps.dnslite.protocol;
 
 /*
  * Used typically when something needs to be parsed or validated into a DNSMessage

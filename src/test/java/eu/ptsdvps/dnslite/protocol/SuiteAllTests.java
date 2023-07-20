@@ -1,4 +1,4 @@
-package eu.pitsch_devops.dnslite.dnslite_auth_server;
+package eu.ptsdvps.dnslite.protocol;
 
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
