@@ -3,15 +3,15 @@
 ## Refactor Project
 - Overarching Maven project
 - mvn module for library code
+  - ~~rename package~~
 - add mvn module for authoritative server as submodule
 - add mvn module for basic client as submodule
-- mvn module for library classes needed in all parts (DNSMessage, ...)
 
 ## Library Code
 - make DNSMessage, DNSQuestion, DNSAnswer immutable, only mutate Builders, then build
   - validate bytes when build() is called (OPCode Query matches QR flag, and others)
 - allow to transform DNSMessage, DNSQuestion, DNSAnswer to respective Builder too
-- get DNSQuestion, DNSAnswer from bytes
+- ~~get DNSQuestion, DNSAnswer from bytes~~
 - make DNSQuestion
 
 
