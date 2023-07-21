@@ -13,15 +13,23 @@
 - allow to transform DNSMessage, DNSQuestion, DNSAnswer to respective Builder too
 - ~~get DNSQuestion, DNSAnswer from bytes~~
 - make DNSQuestion
+- implement DNSQuestionPart as a view
+- use factory method getQuestionPart (int questionIndex) - cache precomputed
 - add classes for
   - Labels (maybe not)
   - Sections (maybe not)
   - Names
   - RR
   - RRSet
+- provide iterators for the QuestionParts in a message
+- provide iterators for other iterable elements of a DNSMessage (one RRSet, the Set of RRSets, the sections?)
+
 
 ## authoritative server
 - in memory database of zones
+  - programmable?
+- send answers over network
+- some api to update
 
 ## implement a client
   - send questions over network
