@@ -13,7 +13,12 @@
 - allow to transform DNSMessage, DNSQuestion, DNSAnswer to respective Builder too
 - ~~get DNSQuestion, DNSAnswer from bytes~~
 - make DNSQuestion
-
+- add classes for
+  - Labels (maybe not)
+  - Sections (maybe not)
+  - Names
+  - RR
+  - RRSet
 
 ## authoritative server
 - in memory database of zones
@@ -26,6 +31,3 @@
 - docker container with question sender
   - integration test: question sender in docker container, send questions to BIND9 Server
   
- 
-
-
