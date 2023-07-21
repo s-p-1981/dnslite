@@ -9,11 +9,6 @@ import java.util.logging.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import eu.ptsdvps.dnslite.protocol.DNSAnswer;
-import eu.ptsdvps.dnslite.protocol.DNSMessage;
-import eu.ptsdvps.dnslite.protocol.DNSParseException;
-import eu.ptsdvps.dnslite.protocol.DNSQuestion;
-
 class DNSMessageBytesTest {
 
 	final static Logger log = Logger.getLogger(DNSMessageBytesTest.class.getName());
@@ -75,6 +70,15 @@ class DNSMessageBytesTest {
 	void dnsMessageFromBytesIsNotAnswer() throws DNSParseException {
 		DNSMessage message = DNSMessage.fromBytes(message_question_1);
 		assertFalse(message instanceof DNSAnswer);
+	}
+
+	@DisplayName("parse message from bytes array. check immutable")
+	@Test
+	void dnsMessageisImmutable() throws DNSParseException {
+		DNSMessage message = DNSMessage.fromBytes(message_question_1);
+		assertFalse(message.getFlagQR());
+		message_question_1[2] = (byte)0b1000_0001; // set QR flag in input array
+		assertFalse(message.getFlagQR()); // should
 	}
 
 }

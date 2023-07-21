@@ -8,7 +8,7 @@
 - add mvn module for basic client as submodule
 
 ## Library Code
-- make DNSMessage, DNSQuestion, DNSAnswer immutable, only mutate Builders, then build
+- ~~make DNSMessage, DNSQuestion, DNSAnswer immutable, only mutate Builders, then build~~
   - validate bytes when build() is called (OPCode Query matches QR flag, and others)
 - allow to transform DNSMessage, DNSQuestion, DNSAnswer to respective Builder too
 - ~~get DNSQuestion, DNSAnswer from bytes~~

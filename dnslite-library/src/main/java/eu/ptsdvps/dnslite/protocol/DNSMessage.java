@@ -1,5 +1,6 @@
 package eu.ptsdvps.dnslite.protocol;
 
+import java.util.Arrays;
 
 /*
  * abstract, but will contain most of the actual Code, since DNSMessages, whether Question or Answers
@@ -95,7 +96,7 @@ abstract class DNSMessage {
 
 	/* to be called in Subtype-Builders only */
 	DNSMessage(byte[] messageBytes) {
-		this.messageBytes = messageBytes;
+		this.messageBytes = Arrays.copyOf(messageBytes, messageBytes.length);
 	}
 
 	/* to be used with existing messageBytes (e.g., coming over network)
