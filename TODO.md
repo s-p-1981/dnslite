@@ -1,8 +1,8 @@
 # TODO List
 
 ## Refactor Project
-- Overarching Maven project
-- mvn module for library code
+- ~~Overarching Maven project~~
+- ~~ mvn module for library code ~~
   - ~~rename package~~
 - add mvn module for authoritative server as submodule
 - add mvn module for basic client as submodule

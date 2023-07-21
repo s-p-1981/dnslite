@@ -4,47 +4,52 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>eu.pitsch-devops.dnslite</groupId>
-  <artifactId>dnslite-auth-server</artifactId>
+  <groupId>eu.ptsdvps.dnslite</groupId>
+  <artifactId>dnslite</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+	  <module>dnslite-library</module>
+  </modules>
 
-  <name>dnslite-auth-server</name>
-  <description>A simple dnslite-auth-server.</description>
+  <name>dnslite</name>
+  <description>implementation of dns protocol</description>
   <url>http://gitthub.com/s-p-1981/dnslite</url>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>${java.version}</maven.compiler.source> <!-- source language level (syntax) -->
-    <maven.compiler.target>${java.version}</maven.compiler.target>  <!-- byte code level -->
-    <maven.compiler.release>${java.version}</maven.compiler.release>  <!-- fail when using newer libraries-->
     <java.version>8</java.version>
     <junit.jupiter.version>5.9.0</junit.jupiter.version>
     <junit.platform.version>1.9.0</junit.platform.version>
     <junit.runsuite>**/SuiteAllTests.class</junit.runsuite>
+    <maven.compiler.source>${java.version}</maven.compiler.source> <!-- source language level (syntax) -->
+    <maven.compiler.target>${java.version}</maven.compiler.target>  <!-- byte code level -->
+    <maven.compiler.release>${java.version}</maven.compiler.release>  <!-- fail when using newer libraries-->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit.jupiter.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit.jupiter.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
-      <version>${junit.jupiter.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-suite</artifactId>
-      <version>${junit.platform.version}</version>
-    </dependency>
-  </dependencies>
+  <dependencyManagement>
+	  <dependencies>
+	    <dependency>
+	      <groupId>org.junit.jupiter</groupId>
+	      <artifactId>junit-jupiter-engine</artifactId>
+	      <version>${junit.jupiter.version}</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.junit.jupiter</groupId>
+	      <artifactId>junit-jupiter-api</artifactId>
+	      <version>${junit.jupiter.version}</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.junit.jupiter</groupId>
+	      <artifactId>junit-jupiter-params</artifactId>
+	      <version>${junit.jupiter.version}</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.junit.platform</groupId>
+	      <artifactId>junit-platform-suite</artifactId>
+	      <version>${junit.platform.version}</version>
+	    </dependency>
+	  </dependencies>
+  </dependencyManagement>
 
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
