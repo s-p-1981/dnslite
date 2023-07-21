@@ -2,11 +2,11 @@ package eu.ptsdvps.dnslite.protocol;
 
 import java.util.logging.Logger;
 
-public class DNSAnswer extends DNSMessage {
+public class DNSMessageAnswer extends DNSMessage {
 
-	static final Logger log = Logger.getLogger(DNSAnswer.class.getName());
+	static final Logger log = Logger.getLogger(DNSMessageAnswer.class.getName());
 
-	public DNSAnswer(byte[] messageBytes) {
+	public DNSMessageAnswer(byte[] messageBytes) {
 		super(messageBytes);
 	}
 

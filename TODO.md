@@ -7,23 +7,30 @@
 - add mvn module for authoritative server as submodule
 - add mvn module for basic client as submodule
 
+## basic client
+
+
 ## Library Code
-- ~~make DNSMessage, DNSQuestion, DNSAnswer immutable, only mutate Builders, then build~~
+- ~~make DNSMessage, DNSMessageQuestion, DNSMessageAnswer immutable, only mutate Builders, then build~~
   - validate bytes when build() is called (OPCode Query matches QR flag, and others)
-- allow to transform DNSMessage, DNSQuestion, DNSAnswer to respective Builder too
-- ~~get DNSQuestion, DNSAnswer from bytes~~
-- make DNSQuestion
-- implement DNSQuestionPart as a view
-- use factory method getQuestionPart (int questionIndex) - cache precomputed
+- allow to transform DNSMessage, DNSMessageQuestion, DNSMessageAnswer to respective Builder too
+- ~~get DNSMessageQuestion, DNSMessageAnswer from bytes~~
+- ~~implement DNSQuestion as a view~~
+  - ~~scan for messages once, then use cached objects~~
+  - write more tests for DNSQuestion as view
+  - provide iterator for questions
+  - provide iterator for labels in question name
+  - add more DNS Types than A, AAAA
+- implement adding DNSQuestion in the Builder
+- use factory method getQuestion (int questionIndex) - 
 - add classes for
-  - Labels (maybe not)
-  - Sections (maybe not)
-  - Names
+  - Labels (maybe not? but i think "yes")
+  - Names (maybe not? but i think "yes"
   - RR
   - RRSet
-- provide iterators for the QuestionParts in a message
-- provide iterators for other iterable elements of a DNSMessage (one RRSet, the Set of RRSets, the sections?)
 
+### various
+- add message text to ALL throw statements
 
 ## authoritative server
 - in memory database of zones

@@ -3,14 +3,14 @@ package eu.ptsdvps.dnslite.protocol;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-public class DNSQuestion extends DNSMessage {
+public class DNSMessageQuestion extends DNSMessage {
 
-	static final Logger log = Logger.getLogger(DNSQuestion.class.getName());
+	static final Logger log = Logger.getLogger(DNSMessageQuestion.class.getName());
 
 	/* intent : (package) private constructors only, class should be immutable thus
 	 * effectively final
 	 */
-	DNSQuestion(byte[] messageBytes) {
+	DNSMessageQuestion(byte[] messageBytes) {
 		super(messageBytes);
 	}
 
@@ -29,8 +29,8 @@ public class DNSQuestion extends DNSMessage {
 			realLength = 12; // length of headers
 		}
 
-		public DNSQuestion build() {
-			return new DNSQuestion(Arrays.copyOf(builderBytes, realLength));
+		public DNSMessageQuestion build() {
+			return new DNSMessageQuestion(Arrays.copyOf(builderBytes, realLength));
 		}
 
 		public void setOPCodetoQuery() {
@@ -100,5 +100,7 @@ public class DNSQuestion extends DNSMessage {
 		}
 
 	} // End of DNSQuestionBuilder
+
+
 
 } // End of DNSQuestion
