@@ -13,24 +13,24 @@
 ## Library Code
 - ~~make DNSMessage, DNSMessageQuestion, DNSMessageAnswer immutable, only mutate Builders, then build~~
   - validate bytes when build() is called (OPCode Query matches QR flag, and others)
-- allow to transform DNSMessage, DNSMessageQuestion, DNSMessageAnswer to respective Builder too
+- allow to transform DNSMessage to respective Builders (based on QR flag)
 - ~~get DNSMessageQuestion, DNSMessageAnswer from bytes~~
 - ~~implement DNSQuestion as a view~~
   - ~~scan for messages once, then use cached objects~~
-  - write more tests for DNSQuestion as view
+  - ~~write more tests for DNSQuestion as view~~
   - provide iterator for questions
   - provide iterator for labels in question name
-  - add more DNS Types than A, AAAA
+  - NEXT UP: add more DNS Types than A, AAAA
 - implement adding DNSQuestion in the Builder
-- use factory method getQuestion (int questionIndex) - 
-- add classes for
-  - Labels (maybe not? but i think "yes")
-  - Names (maybe not? but i think "yes"
-  - RR
-  - RRSet
+- ~~use factory method getQuestion (int questionIndex)~~
+- (DONT KNOW) add classes for
+  - Labels (maybe not? but i think "yes" - for iteration)
+  - Names (maybe not? but i think "yes" - for iteration)
+  - RR (definitely)
+  - RRSet (definitely)
 
 ### various
-- add message text to ALL throw statements
+- NEXT UP: add message text to ALL throw statements
 
 ## authoritative server
 - in memory database of zones
