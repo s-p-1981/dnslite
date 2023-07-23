@@ -1,18 +1,10 @@
 package eu.ptsdvps.dnslite.protocol;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.logging.Logger;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import eu.ptsdvps.dnslite.protocol.DNSMessage;
-import eu.ptsdvps.dnslite.protocol.DNSMessageQuestion;
+import org.junit.jupiter.api.*;
 
 class DNSQuestionBuilderTest {
 
@@ -21,13 +13,13 @@ class DNSQuestionBuilderTest {
 	@DisplayName("Test MessageBuilder")
 	@Test
 	void testBuildQuestion() {
-		DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder().build();
+		DNSMessage question = new DNSQuestionBuilder().build();
 	}
 
 	@DisplayName("test Transaction ID field")
 	@Test
 	void testFieldTransactionID() {
-	DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder()
+	DNSMessage question = new DNSQuestionBuilder()
 				.setFieldTransactionID(1000)
 				.build();
 		assertEquals(1000, question.getFieldTransactionID());
@@ -35,7 +27,7 @@ class DNSQuestionBuilderTest {
 	}
 
 	void testFieldTransactionIDGreaterThan32767() {
-		DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder()
+		DNSMessage question = new DNSQuestionBuilder()
 				.setFieldTransactionID(65534)
 				.build();
 		assertEquals(65534, question.getFieldTransactionID());
@@ -49,7 +41,7 @@ class DNSQuestionBuilderTest {
 		Exception resultingException = assertThrows(
 				java.lang.IllegalArgumentException.class,
 				() -> {
-					DNSMessageQuestion question = new DNSMessageQuestion.DNSQuestionBuilder()
+					DNSMessage question = new DNSQuestionBuilder()
 						.setFieldTransactionID(-1)
 						.build();
 				});
@@ -62,7 +54,7 @@ class DNSQuestionBuilderTest {
 		Exception resultingException = assertThrows(
 				java.lang.IllegalArgumentException.class,
 				() -> {
-					DNSMessageQuestion question = new DNSMessageQuestion.DNSQuestionBuilder()
+					DNSMessage question = new DNSQuestionBuilder()
 						.setFieldTransactionID(65536)
 						.build();
 				});
@@ -72,7 +64,7 @@ class DNSQuestionBuilderTest {
 	@DisplayName("test QR field - always false in Question")
 	@Test
 	void testFlagQRIsUnSet() {
-		DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder()
+		DNSMessage question = new DNSQuestionBuilder()
 			.build();
 		assertFalse(question.getFlagQR());
 		// other flags also have expected values
@@ -83,7 +75,7 @@ class DNSQuestionBuilderTest {
 	@DisplayName("test RD field default - false")
 	@Test
 	void testFlagRDIsUnSetByDefault() {
-		DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder()
+		DNSMessage question = new DNSQuestionBuilder()
 			.build();
 		assertFalse(question.getFlagRD());
 	}
@@ -91,7 +83,7 @@ class DNSQuestionBuilderTest {
 	@DisplayName("test RD field - false")
 	@Test
 	void testFlagRDIsUnSet() {
-		DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder()
+		DNSMessage question = new DNSQuestionBuilder()
 			.unsetFlagRD()
 			.build();
 		assertFalse(question.getFlagRD());
@@ -103,7 +95,7 @@ class DNSQuestionBuilderTest {
 	@DisplayName("test RD field - true")
 	@Test
 	void testFlagRDIsSet() {
-		DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder()
+		DNSMessage question = new DNSQuestionBuilder()
 			.setFlagRD()
 			.build();
 		assertTrue(question.getFlagRD());
@@ -115,7 +107,7 @@ class DNSQuestionBuilderTest {
 	@DisplayName("test CD field default - false")
 	@Test
 	void testFlagCDIsUnSetByDefault() {
-		DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder()
+		DNSMessage question = new DNSQuestionBuilder()
 			.build();
 		assertFalse(question.getFlagCD());
 	}
@@ -123,7 +115,7 @@ class DNSQuestionBuilderTest {
 	@DisplayName("test CD field - false")
 	@Test
 	void testFlagCDIsUnSet() {
-		DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder()
+		DNSMessage question = new DNSQuestionBuilder()
 			.unsetFlagCD()
 			.build();
 		assertFalse(question.getFlagCD());
@@ -135,7 +127,7 @@ class DNSQuestionBuilderTest {
 	@DisplayName("test CD field - true")
 	@Test
 	void testFlagCDIsSet() {
-		DNSMessage question = new DNSMessageQuestion.DNSQuestionBuilder()
+		DNSMessage question = new DNSQuestionBuilder()
 			.setFlagCD()
 			.build();
 		assertTrue(question.getFlagCD());

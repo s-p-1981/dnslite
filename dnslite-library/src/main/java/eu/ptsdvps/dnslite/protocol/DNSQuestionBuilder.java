@@ -1,20 +1,10 @@
 package eu.ptsdvps.dnslite.protocol;
 
 import java.util.Arrays;
-import java.util.logging.Logger;
 
-public class DNSMessageQuestion extends DNSMessage {
+import eu.ptsdvps.dnslite.protocol.DNSMessage.*;
 
-	static final Logger log = Logger.getLogger(DNSMessageQuestion.class.getName());
-
-	/* intent : (package) private constructors only, class should be immutable thus
-	 * effectively final
-	 */
-	DNSMessageQuestion(byte[] messageBytes) {
-		super(messageBytes);
-	}
-
-	public static class DNSQuestionBuilder extends DNSMessage.DNSMessageBuilder {
+public class DNSQuestionBuilder extends DNSMessageBuilder {
 
 //		private byte[] builderBytes = new byte[512];
 //		private short realLength = 0;
@@ -29,8 +19,8 @@ public class DNSMessageQuestion extends DNSMessage {
 			realLength = 12; // length of headers
 		}
 
-		public DNSMessageQuestion build() {
-			return new DNSMessageQuestion(Arrays.copyOf(builderBytes, realLength));
+		public DNSMessage build() {
+			return new DNSMessage(Arrays.copyOf(builderBytes, realLength));
 		}
 
 		public void setOPCodetoQuery() {
@@ -42,7 +32,7 @@ public class DNSMessageQuestion extends DNSMessage {
 			if (txid > DNSMessage.MAX_UNSIZED_SHORT)
 				throw new IllegalArgumentException(
 					String.format("TransactionID too big : was {}: should be <= 65535", txid));
-			if (txid < MIN_UNSIZED_SHORT)
+			if (txid < DNSMessage.MIN_UNSIZED_SHORT)
 				throw new IllegalArgumentException(
 					String.format("TransactionID too small: was {}: should be >= 0", txid));
 			builderBytes[0] = (byte)(txid >> 8);
@@ -100,7 +90,3 @@ public class DNSMessageQuestion extends DNSMessage {
 		}
 
 	} // End of DNSQuestionBuilder
-
-
-
-} // End of DNSQuestion

@@ -11,14 +11,21 @@ import eu.ptsdvps.dnslite.protocol.exception.DNSParseException;
  *
  * Subclasses mainly exist to differentiate between Question and Answer in client code
  */
-abstract class DNSMessage {
+public class DNSMessage {
 
-	/* static fields */
-	// constants for bitwise operations
+	/* -----------
+	 * constants
+	 * ----------- */
+
+	// for bitwise operations
 	static final int MAX_UNSIZED_SHORT = 0b1111_1111_1111_1111;
 	static final int MIN_UNSIZED_SHORT = 0;
 
 	static Logger log = Logger.getLogger("logger for " + DNSMessage.class.getName());
+
+	/* -------
+	 * enums
+	 * -------*/
 
 	enum Flag {
 		QR((byte)0b1000_0000, (byte)2),
@@ -136,45 +143,33 @@ abstract class DNSMessage {
 		}
 	}
 
-	static abstract class DNSMessageBuilder {
+	/* -------
+	 * fields
+	 * -------*/
 
-		byte[] builderBytes = new byte[512];
-		short realLength = 0;
-
-		void setFlag(Flag flag, boolean value) {
-			if(value) builderBytes[flag.bytePos] |=flag.bit;
-			else builderBytes[flag.bytePos] &= ~flag.bit;
-		}
-	}
-
-	/* fields */
 	byte[] messageBytes;
 
-	/* to be called in Subtype-Builders only */
+	/* ------------
+	 * constructors
+	 * ------------*/
 	DNSMessage(byte[] messageBytes) {
 		this.messageBytes = Arrays.copyOf(messageBytes, messageBytes.length);
 	}
 
+	/* ---------------
+	 * factory methods
+	 * -------------- */
+
 	/* to be used with existing messageBytes (e.g., coming over network)
-	 *
 	 * no validation
-	 *
 	 * */
 	public static DNSMessage fromBytes(byte[] content) throws DNSParseException {
-		try {
-			if (DNSMessage.getFlag(Flag.QR, content)) {
-				return new DNSMessageAnswer(content);
-			}
-			else {
-				return new DNSMessageQuestion(content);
-			}
-		}
-		catch (Exception e) {
-			throw new DNSParseException(e);
-		}
+		return new DNSMessage(content);
 	}
 
-	/* methods */
+	/* -----------------
+	 *  public methods
+	 * ---------------- */
 	@Override
 	public String toString() {
 		String formatString = ""
@@ -192,9 +187,6 @@ abstract class DNSMessage {
 		return getFlag(flag, messageBytes);
 	}
 
-	private static boolean getFlag(Flag flag, byte[] bytes) {
-		return (bytes[flag.bytePos] & flag.bit) == flag.bit;
-	}
 
 	public boolean getFlagQR() {
 		return getFlag(Flag.QR);
@@ -224,26 +216,48 @@ abstract class DNSMessage {
 		return questions[questionIndex];
 	}
 
+	/* -----------------
+	 * private methods */
+
+	private static boolean getFlag(Flag flag, byte[] bytes) {
+		return (bytes[flag.bytePos] & flag.bit) == flag.bit;
+	}
+
+
+	/* ---------------
+	 * inner classes */
+
 	public final class DNSQuestion {
 		private final int nameStart;  	// first byte of question in the message
 		private final int nameEnd;  	// last byte of name in the message (0 byte)
 		private final int[] labelLengths; // firstByte of each label in the message - label length
 		private String readableName = null;
+		private Type type;
+		private DNSClass dnsClass;
 
-		private DNSQuestion(int nameStart, int nameEnd, int[] labelOffsets) {
+		private DNSQuestion(int nameStart, int nameEnd, int[] labelOffsets, Type type, DNSClass dnsclass) {
 			this.nameStart = nameStart;
 			this.nameEnd = nameEnd;
 			this.labelLengths = labelOffsets;
+			this.type = type;
+			this.dnsClass = dnsclass;
+			this.toReadableName();
 		}
 
 		public String getName() {
-			if (readableName == null)
-				toReadableName(false);
 			return readableName;
 		}
 
-		private void toReadableName(boolean explicitRoot) {
-			char[] asChars = new char[nameEnd - nameStart - (explicitRoot ? 0 : 1)];
+		public Type getType() {
+			return type;
+		}
+
+		public DNSClass getDNSClass() {
+			return dnsClass;
+		}
+
+		private void toReadableName() {
+			char[] asChars = new char[nameEnd - nameStart -  1];
 			int asCharsOffset = 0;
 			int labelStart = nameStart;
 			for (int labelCur = 0; labelCur < labelLengths.length; labelCur++ ) {
@@ -252,26 +266,13 @@ abstract class DNSMessage {
 				int labelEnd   = labelStart + labelLength;
 				for (int i = labelStart + 1; i <= labelEnd ; i++)
 					asChars[asCharsOffset++] = (char)messageBytes[i];
-				if (explicitRoot || labelCur < labelLengths.length - 1) // not last lable
+				if (labelCur < labelLengths.length - 1) // not last lable
 					asChars[asCharsOffset++] = '.';
 				labelStart = labelEnd + 1;
 			}
 			readableName = String.valueOf(asChars);
 			log.info("READABLE NAME = " + readableName);
 		}
-
-		public Type getType(){
-			int type = Byte.toUnsignedInt(messageBytes[nameEnd+1]) * 256 +
-					Byte.toUnsignedInt(messageBytes[nameEnd+2]);
-			return Type.fromInt(type);
-		}
-
-		public DNSClass getDNSClass() {
-			int dnsclass = Byte.toUnsignedInt(messageBytes[nameEnd+3]) * 256 +
-					Byte.toUnsignedInt(messageBytes[nameEnd+4]);
-			return DNSClass.fromInt(dnsclass);
-		}
-
 
 		@Override
 		public String toString() {
@@ -296,7 +297,7 @@ abstract class DNSMessage {
 			byte labelLength = messageBytes[messageIndex]; // first byte is length of first label in name
 			byte numLabels = 0;
 			while(labelLength != 0) {  // iterate over current questions labels
-				if(labelLength < 0 || labelLength > 64)
+				if(labelLength < 0 || labelLength > 63)
 					throw new DNSParseException("invalid label length in name in question section: " + labelLength);
 				messageIndex += labelLength+1; //jump to next label length
 				labelLength = messageBytes[messageIndex];
@@ -313,18 +314,44 @@ abstract class DNSMessage {
 				labelLength = messageBytes[messageIndex];
 				messageIndex += labelLength+1;
 			}
+			int typeInt;
+			try {
+			typeInt = Byte.toUnsignedInt(messageBytes[nameEnd+1]) * 256 +
+					Byte.toUnsignedInt(messageBytes[nameEnd+2]);
+			}
+			catch(ArrayIndexOutOfBoundsException e) {
+				throw new DNSParseException("missing query type in question section", e);
+			}
+			Type type;
+			try {
+				type = Type.fromInt(typeInt);
+			}
+			catch(IllegalArgumentException e) {
+				throw new DNSParseException("illegal query type in question section", e);
+			}
+			int dnsClassInt;
+			try {
+				dnsClassInt = Byte.toUnsignedInt(messageBytes[nameEnd+3]) * 256 +
+					Byte.toUnsignedInt(messageBytes[nameEnd+4]);
+			}
+			catch(ArrayIndexOutOfBoundsException e) {
+				throw new DNSParseException("missing dns class in question section", e);
+			}
+			DNSClass dnsclass;
+			try {
+				dnsclass = DNSClass.fromInt(dnsClassInt);
+			}
+			catch(IllegalArgumentException e) {
+				throw new DNSParseException("illegal dns class in question section, e");
+			}
 
 			questions[foundQuestions++] = new DNSQuestion(
-				  nameStart, nameEnd, labelOffsets); // TODO : set Type and class, possibly, to cache computation
-			messageIndex += 4; // skip type and class bytes to next question or section
+				  nameStart, nameEnd, labelOffsets, type, dnsclass);
+			messageIndex += 4; // skip type and class bytes to parse next question or section
 		} // end of message reached. might break before that
-		if (foundQuestions != getNumQuestions()) // TODO : test this
+		if (foundQuestions != getNumQuestions())
 			throw new DNSParseException("QDCount does not match contents of query section");
 	}
-
-
-	// TODO: somehow provide iterator for the QuestionParts in a message as well
-	// TODO: do the same for RRSets in answers
 
 
 }
